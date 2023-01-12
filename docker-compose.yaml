@@ -1,0 +1,55 @@
+version: "3.8"
+services:
+  database_prisma:
+    image: postgres:15
+    container_name: famly_prisma_db
+    # expose:
+    #   - "5433"
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=famly_prisma
+      - POSTGRES_PASSWORD=secret_prisma
+      - POSTGRES_DB=db_dev_prisma
+    volumes:
+      - famly_db_dev_data_prisma:/var/lib/postgresql/data
+    restart: on-failure
+
+  redis:
+    image: redis
+    container_name: redis
+    expose:
+      - 6379
+    restart: on-failure
+
+  backend:
+    build: ./backend
+    container_name: famly_backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+      # - "/etc/timezone:/etc/timezone:ro"
+      # - "/etc/localtime:/etc/localtime:ro"
+    depends_on:
+      - database_prisma
+      - redis
+    links:
+      - redis
+    restart: on-failure
+    # environment:
+    # - REDIS_URL=redis://cache
+
+  frontend:
+    build: ./frontend
+    container_name: famly_frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+    stdin_open: true
+    tty: true
+    restart: on-failure
+
+volumes:
+  famly_db_dev_data_prisma:

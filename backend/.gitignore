@@ -1,0 +1,9 @@
+# dependencies
+/node_modules
+
+# env variables
+# /.env
+
+# JWT keys
+private.pem
+public.pem
